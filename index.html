@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Journey Together</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px 30px;
+            max-width: 800px;
+            margin: 0 auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: white;
+            font-size: 3em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            padding: 20px 0;
+        }
+
+        .photo-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .photo-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .photo-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 75%;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .photo-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .photo-card:hover .photo-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .photo-info {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .photo-date {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .photo-name {
+            color: white;
+            font-size: 1em;
+            font-weight: 400;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 1.2em;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .auto-scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 12px 24px;
+            border-radius: 30px;
+            color: white;
+            font-size: 0.9em;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 100;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .auto-scroll-indicator.visible {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .gallery {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .glass-header {
+                padding: 30px 20px;
+            }
+        }
+
+        /* Staggered animation delays */
+        .photo-card:nth-child(1) { animation-delay: 0.1s; }
+        .photo-card:nth-child(2) { animation-delay: 0.2s; }
+        .photo-card:nth-child(3) { animation-delay: 0.3s; }
+        .photo-card:nth-child(4) { animation-delay: 0.4s; }
+        .photo-card:nth-child(5) { animation-delay: 0.5s; }
+        .photo-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="glass-header">
+            <h1>Our Journey Together</h1>
+            <p class="subtitle">Every moment captured, every memory cherished</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Loading our memories...</p>
+        </div>
+        <div id="gallery" class="gallery"></div>
+    </div>
+
+    <div id="autoScrollIndicator" class="auto-scroll-indicator">
+        Auto-scrolling through memories...
+    </div>
+
+    <script>
+        // Configuration
+        const CONFIG = {
+            picturesFolder: '/',
+            autoScrollDelay: 4000,
+            scrollSpeed: 1,
+            imageExtensions: ['.jpg', '.jpeg', '.png', '.gif', '.webp']
+        };
+
+        // State management
+        let autoScrollTimer = null;
+        let isAutoScrolling = false;
+        let autoScrollInterval = null;
+        let userInteracted = false;
+
+        // Load images from the pictures folder
+        async function loadImages() {
+            const gallery = document.getElementById('gallery');
+            const loading = document.getElementById('loading');
+            
+            try {
+                // Fetch the directory listing from GitHub Pages
+                // We'll generate a list of common image names or use a manifest
+                const images = await discoverImages();
+                
+                if (images.length === 0) {
+                    loading.innerHTML = '<p>No images found. Please add images to the "pictures" folder.</p>';
+                    return;
+                }
+
+                // Sort images by filename (which should contain date info)
+                images.sort((a, b) => a.name.localeCompare(b.name));
+
+                // Hide loading indicator
+                loading.style.display = 'none';
+
+                // Create photo cards
+                images.forEach((image, index) => {
+                    const card = createPhotoCard(image, index);
+                    gallery.appendChild(card);
+                });
+
+                // Initialize auto-scroll after images are loaded
+                initAutoScroll();
+
+            } catch (error) {
+                console.error('Error loading images:', error);
+                loading.innerHTML = '<p>Error loading images. Please check the console.</p>';
+            }
+        }
+
+        // Discover images in the pictures folder
+        async function discoverImages() {
+            const images = [];
+            
+            // Try to load images with common naming patterns
+            // This works by attempting to load images and checking if they exist
+            const testPatterns = [
+                // Try numbered patterns
+                ...Array.from({length: 100}, (_, i) => `IMG_${String(i + 1).padStart(4, '0')}.jpeg`),
+                ...Array.from({length: 100}, (_, i) => `IMG_${String(i + 1).padStart(4, '0')}.jpg`),
+                ...Array.from({length: 50}, (_, i) => `photo${i + 1}.jpeg`),
+                ...Array.from({length: 50}, (_, i) => `image${i + 1}.jpeg`),
+                // Try date-based patterns (example)
+                ...Array.from({length: 30}, (_, i) => `2024_${String(i + 1).padStart(2, '0')}.jpeg`),
+            ];
+
+            // Check which images exist
+            for (const filename of testPatterns) {
+                const exists = await checkImageExists(CONFIG.picturesFolder + filename);
+                if (exists) {
+                    images.push({
+                        name: filename,
+                        path: CONFIG.picturesFolder + filename,
+                        date: extractDateFromFilename(filename)
+                    });
+                }
+            }
+
+            return images;
+        }
+
+        // Check if an image exists
+        function checkImageExists(url) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            });
+        }
+
+        // Extract date from filename
+        function extractDateFromFilename(filename) {
+            // Try to extract date patterns from filename
+            const datePatterns = [
+                /(\d{4})[-_](\d{2})[-_](\d{2})/,  // YYYY-MM-DD or YYYY_MM_DD
+                /(\d{8})/,  // YYYYMMDD
+            ];
+
+            for (const pattern of datePatterns) {
+                const match = filename.match(pattern);
+                if (match) {
+                    if (match[1] && match[2] && match[3]) {
+                        return new Date(`${match[1]}-${match[2]}-${match[3]}`);
+                    } else if (match[1] && match[1].length === 8) {
+                        const year = match[1].substring(0, 4);
+                        const month = match[1].substring(4, 6);
+                        const day = match[1].substring(6, 8);
+                        return new Date(`${year}-${month}-${day}`);
+                    }
+                }
+            }
+
+            return new Date();  // Default to current date
+        }
+
+        // Create a photo card element
+        function createPhotoCard(image, index) {
+            const card = document.createElement('div');
+            card.className = 'photo-card';
+            
+            const dateStr = formatDate(image.date);
+            
+            card.innerHTML = `
+                <div class="photo-wrapper">
+                    <img src="${image.path}" alt="${image.name}" loading="lazy">
+                </div>
+                <div class="photo-info">
+                    <div class="photo-date">${dateStr}</div>
+                    <div class="photo-name">${image.name}</div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Format date for display
+        function formatDate(date) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        // Auto-scroll functionality
+        function initAutoScroll() {
+            const indicator = document.getElementById('autoScrollIndicator');
+
+            // Reset timer on user interaction
+            const resetAutoScroll = () => {
+                userInteracted = true;
+                stopAutoScroll();
+                
+                clearTimeout(autoScrollTimer);
+                autoScrollTimer = setTimeout(() => {
+                    if (!isScrolledToBottom()) {
+                        startAutoScroll();
+                    }
+                }, CONFIG.autoScrollDelay);
+            };
+
+            // Listen for user interactions
+            ['mousedown', 'wheel', 'touchstart', 'keydown'].forEach(event => {
+                document.addEventListener(event, resetAutoScroll, { passive: true });
+            });
+
+            // Start initial auto-scroll after delay
+            autoScrollTimer = setTimeout(() => {
+                if (!userInteracted) {
+                    startAutoScroll();
+                }
+            }, CONFIG.autoScrollDelay);
+        }
+
+        // Start auto-scrolling
+        function startAutoScroll() {
+            if (isAutoScrolling) return;
+            
+            isAutoScrolling = true;
+            const indicator = document.getElementById('autoScrollIndicator');
+            indicator.classList.add('visible');
+
+            autoScrollInterval = setInterval(() => {
+                if (isScrolledToBottom()) {
+                    stopAutoScroll();
+                    return;
+                }
+
+                window.scrollBy({
+                    top: CONFIG.scrollSpeed,
+                    behavior: 'smooth'
+                });
+            }, 16);  // ~60fps
+        }
+
+        // Stop auto-scrolling
+        function stopAutoScroll() {
+            isAutoScrolling = false;
+            const indicator = document.getElementById('autoScrollIndicator');
+            indicator.classList.remove('visible');
+            
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+            }
+        }
+
+        // Check if scrolled to bottom
+        function isScrolledToBottom() {
+            return (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100;
+        }
+
+        // Initialize the gallery when DOM is ready
+        document.addEventListener('DOMContentLoaded', loadImages);
+    </script>
+</body>
+</html>
